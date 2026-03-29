@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}BioBase — Human Disease & Cancer Biomarker Database{% endblock %}
+
+{% block content %}
+
+<!-- ─── Hero ─────────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-badge">🧬 Bioinformatics Research Platform</div>
+    <h1>Explore the <em>Molecular Basis</em><br>of Human Disease</h1>
+    <p>A curated, AI-assisted database of genetic diseases, complex disorders, and cancer biomarkers — inspired by MalaCards and OMIM.</p>
+
+    <form class="hero-search" action="/search" method="get">
+      <input type="text" name="q" placeholder="Search by disease, gene, symptom… (e.g. BRCA1, tremor, cystic fibrosis)" autocomplete="off">
+      <button type="submit">Search</button>
+    </form>
+
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <span class="num">{{ stats.disease_count }}</span>
+        <span class="lbl">Diseases</span>
+      </div>
+      <div class="hero-stat">
+        <span class="num">{{ stats.biomarker_count }}</span>
+        <span class="lbl">Biomarkers</span>
+      </div>
+      <div class="hero-stat">
+        <span class="num">AI</span>
+        <span class="lbl">Smart Search</span>
+      </div>
+      <div class="hero-stat">
+        <span class="num">4</span>
+        <span class="lbl">Disease Types</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Main Content ──────────────────────────────────────────── -->
+<div class="page-wrap">
+
+  <!-- Feature Cards -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-bottom:3rem;">
+    <a href="/diseases" style="text-decoration:none">
+      <div class="detail-card" style="text-align:center;padding:1.5rem;cursor:pointer">
+        <div style="font-size:2rem;margin-bottom:.5rem">🧾</div>
+        <div style="font-weight:700;color:var(--slate-800);margin-bottom:.3rem">Disease Database</div>
+        <div style="font-size:.82rem;color:var(--slate-500)">Browse {{ stats.disease_count }} curated diseases with genetic basis, symptoms, diagnosis &amp; treatment.</div>
+      </div>
+    </a>
+    <a href="/biomarkers" style="text-decoration:none">
+      <div class="detail-card" style="text-align:center;padding:1.5rem;cursor:pointer">
+        <div style="font-size:2rem;margin-bottom:.5rem">🎗️</div>
+        <div style="font-weight:700;color:var(--slate-800);margin-bottom:.3rem">Cancer Biomarkers</div>
+        <div style="font-size:.82rem;color:var(--slate-500)">{{ stats.biomarker_count }} validated biomarkers with detection methods, clinical relevance &amp; approved tests.</div>
+      </div>
+    </a>
+    <a href="/search" style="text-decoration:none">
+      <div class="detail-card" style="text-align:center;padding:1.5rem;cursor:pointer">
+        <div style="font-size:2rem;margin-bottom:.5rem">🤖</div>
+        <div style="font-weight:700;color:var(--slate-800);margin-bottom:.3rem">AI-Powered Search</div>
+        <div style="font-size:.82rem;color:var(--slate-500)">Enter symptoms and our rule-based NLP engine suggests possible diseases with relevance scores.</div>
+      </div>
+    </a>
+    <a href="/compare" style="text-decoration:none">
+      <div class="detail-card" style="text-align:center;padding:1.5rem;cursor:pointer">
+        <div style="font-size:2rem;margin-bottom:.5rem">⚖️</div>
+        <div style="font-weight:700;color:var(--slate-800);margin-bottom:.3rem">Disease Comparison</div>
+        <div style="font-size:.82rem;color:var(--slate-500)">Side-by-side comparison of two diseases across genes, symptoms, treatment &amp; more.</div>
+      </div>
+    </a>
+  </div>
+
+  <!-- Charts -->
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h3>Disease Categories</h3>
+      <canvas id="cat-chart" height="220"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>Biomarker Relevance Types</h3>
+      <canvas id="bm-chart" height="220"></canvas>
+    </div>
+  </div>
+
+  <!-- Featured Diseases -->
+  <div class="section-header">
+    <div>
+      <div class="section-title">Disease <span>Database</span></div>
+      <div class="section-sub">Curated genetic &amp; complex diseases with molecular detail</div>
+    </div>
+    <a href="/diseases" class="view-all">View all →</a>
+  </div>
+
+  <!-- Disease cards loaded via JS -->
+  <div class="cards-grid" id="home-disease-cards">
+    <div class="loading-spinner"></div>
+  </div>
+
+  <!-- AI Explanation -->
+  <div style="margin:3rem 0;background:linear-gradient(120deg,#f0f4ff,#e8f0fe);border-radius:var(--radius-lg);padding:2rem;border:1.5px solid #bfdbfe">
+    <h2 style="font-family:var(--font-display);font-size:1.5rem;color:var(--blue-800);margin-bottom:.75rem">🤖 How Our AI Works</h2>
+    <p style="color:var(--slate-700);margin-bottom:.75rem">BioBase uses a <strong>rule-based NLP (Natural Language Processing)</strong> system for symptom-driven disease inference — a core AI technique:</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem">
+      <div style="background:white;border-radius:10px;padding:1rem;border:1px solid #dbeafe">
+        <div style="font-weight:700;color:var(--blue-700);margin-bottom:.4rem">1. Tokenisation</div>
+        <div style="font-size:.82rem;color:var(--slate-600)">User query split into meaningful tokens using regex pattern matching.</div>
+      </div>
+      <div style="background:white;border-radius:10px;padding:1rem;border:1px solid #dbeafe">
+        <div style="font-weight:700;color:var(--blue-700);margin-bottom:.4rem">2. KB Matching</div>
+        <div style="font-size:.82rem;color:var(--slate-600)">Tokens matched against a symptom–disease ontology (knowledge base).</div>
+      </div>
+      <div style="background:white;border-radius:10px;padding:1rem;border:1px solid #dbeafe">
+        <div style="font-weight:700;color:var(--blue-700);margin-bottom:.4rem">3. Scoring & Ranking</div>
+        <div style="font-size:.82rem;color:var(--slate-600)">Diseases scored by match count and ranked by relevance for output.</div>
+      </div>
+      <div style="background:white;border-radius:10px;padding:1rem;border:1px solid #dbeafe">
+        <div style="font-weight:700;color:var(--blue-700);margin-bottom:.4rem">4. Fuzzy Matching</div>
+        <div style="font-size:.82rem;color:var(--slate-600)">"Did you mean?" powered by Python difflib sequence matching.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Load disease cards for home page
+fetch('/api/diseases')
+  .then(r => r.json())
+  .then(diseases => {
+    const grid = document.getElementById('home-disease-cards');
+    const icons = {genetic:"🧬",neurological:"🧠",cancer:"🎗️",metabolic:"⚗️",cardiovascular:"❤️"};
+    grid.innerHTML = diseases.slice(0, 6).map((d, i) => {
+      const cat = d.category.toLowerCase();
+      const icon = icons[cat] || "🔬";
+      return `
+        <div class="disease-card" onclick="window.location='/disease/${d.id}'" style="animation-delay:${i*60}ms">
+          <div class="card-header">
+            <div class="card-icon ${cat}">${icon}</div>
+            <span class="cat-badge ${cat}">${d.category}</span>
+          </div>
+          <div class="card-title">${d.name}</div>
+          <div class="card-footer">
+            <span>${d.inheritance || ''}</span>
+            <span class="card-link">View details →</span>
+          </div>
+        </div>`;
+    }).join('');
+  });
+</script>
+{% endblock %}

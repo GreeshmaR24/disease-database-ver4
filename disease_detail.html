@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% block title %}{{ disease.name }} — BioBase{% endblock %}
+
+{% block content %}
+<div class="page-wrap">
+
+  <!-- Back link -->
+  <a href="/diseases" style="font-size:.85rem;color:var(--slate-500);display:inline-flex;align-items:center;gap:.4rem;margin-bottom:1.25rem">
+    ← Back to Disease Database
+  </a>
+
+  <!-- Detail Hero -->
+  <div class="detail-hero">
+    <div class="detail-hero-top">
+      <div style="flex:1">
+        <span class="cat-badge {% if disease.category %}{{ disease.category.lower() }}{% endif %}" style="margin-bottom:.75rem;display:inline-block">
+          {{ disease.category }}
+        </span>
+        <h1>{{ disease.name }}</h1>
+        {% if disease.omim_id %}
+        <div class="omim">OMIM: {{ disease.omim_id }} &nbsp;|&nbsp; Inheritance: {{ disease.inheritance or 'Unknown' }}</div>
+        {% endif %}
+      </div>
+      <div style="display:flex;gap:.5rem;flex-shrink:0;flex-wrap:wrap">
+        <button id="bookmark-btn"
+                class="btn btn-bookmark {% if is_bookmarked %}bookmarked{% endif %}"
+                onclick="toggleBookmark({{ disease.id }})">
+          {% if is_bookmarked %}⭐ Bookmarked{% else %}☆ Bookmark{% endif %}
+        </button>
+        <a href="/compare?pre={{ disease.id }}" class="btn btn-outline" style="font-size:.85rem;padding:.5rem 1rem">⚖️ Compare</a>
+      </div>
+    </div>
+    <p style="color:var(--slate-300);font-size:.95rem;line-height:1.65;max-width:800px">{{ disease.description }}</p>
+  </div>
+
+  <!-- Detail Grid -->
+  <div class="detail-grid">
+
+    <!-- Left Column -->
+    <div style="display:flex;flex-direction:column;gap:1.25rem">
+
+      <!-- Symptoms -->
+      <div class="detail-card">
+        <h3>Clinical Symptoms</h3>
+        <div class="symptom-list">
+          {% for s in disease.symptoms %}
+          <div class="symptom-item">{{ s }}</div>
+          {% else %}
+          <p style="color:var(--slate-400)">No symptom data available.</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Genetic Basis -->
+      <div class="detail-card">
+        <h3>Genetic Basis</h3>
+        <p style="font-size:.875rem;color:var(--slate-600);margin-bottom:1rem">
+          Genes with confirmed or strong association:
+        </p>
+        <div class="gene-chips">
+          {% for gene in disease.genes %}
+          <span class="gene-chip" title="Search for {{ gene }} in NCBI Gene">{{ gene }}</span>
+          {% else %}
+          <span style="color:var(--slate-400);font-size:.875rem">No gene data available.</span>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Associated Proteins -->
+      <div class="detail-card">
+        <h3>Associated Proteins</h3>
+        <div style="display:flex;flex-direction:column;gap:.5rem">
+          {% for p in disease.proteins %}
+          <div style="display:flex;align-items:flex-start;gap:.6rem;font-size:.875rem;color:var(--slate-700);padding:.5rem .75rem;background:var(--slate-50);border-radius:8px">
+            <span style="color:var(--teal-400)">●</span> {{ p }}
+          </div>
+          {% else %}
+          <p style="color:var(--slate-400);font-size:.875rem">No protein data available.</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Diagnosis -->
+      <div class="detail-card">
+        <h3>Diagnosis Methods</h3>
+        <p style="font-size:.875rem;color:var(--slate-700);line-height:1.7">{{ disease.diagnosis or 'Not specified.' }}</p>
+      </div>
+
+      <!-- Treatment -->
+      <div class="detail-card">
+        <h3>Treatment Overview</h3>
+        <p style="font-size:.875rem;color:var(--slate-700);line-height:1.7">{{ disease.treatment or 'Not specified.' }}</p>
+      </div>
+
+    </div>
+
+    <!-- Right Sidebar -->
+    <div style="display:flex;flex-direction:column;gap:1.25rem">
+
+      <!-- Quick Facts -->
+      <div class="detail-card">
+        <h3>Quick Facts</h3>
+        <div class="info-row">
+          <span class="info-label">Category</span>
+          <span class="info-value">{{ disease.category }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Inheritance</span>
+          <span class="info-value">{{ disease.inheritance or 'Unknown' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Prevalence</span>
+          <span class="info-value">{{ disease.prevalence or 'Unknown' }}</span>
+        </div>
+        {% if disease.omim_id %}
+        <div class="info-row">
+          <span class="info-label">OMIM ID</span>
+          <span class="info-value" style="font-family:var(--font-mono)">
+            <a href="https://www.omim.org/entry/{{ disease.omim_id }}" target="_blank" style="color:var(--blue-500)">
+              {{ disease.omim_id }} ↗
+            </a>
+          </span>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Search Tags -->
+      <div class="detail-card">
+        <h3>Related Tags</h3>
+        <div style="display:flex;flex-wrap:wrap;gap:.4rem">
+          {% for tag in disease.tags %}
+          <a href="/search?q={{ tag }}" style="text-decoration:none">
+            <span class="meta-tag" style="cursor:pointer;transition:all .2s"
+                  onmouseover="this.style.background='var(--blue-50)';this.style.color='var(--blue-700)'"
+                  onmouseout="this.style.background='';this.style.color=''">
+              {{ tag }}
+            </span>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Related Biomarkers (if cancer category) -->
+      {% if disease.category == 'Cancer' %}
+      <div class="detail-card">
+        <h3>Related Biomarkers</h3>
+        <p style="font-size:.82rem;color:var(--slate-500);margin-bottom:.75rem">Cancer biomarkers relevant to this disease:</p>
+        <a href="/biomarkers" class="btn btn-primary" style="font-size:.85rem;width:100%;justify-content:center">
+          View Cancer Biomarkers →
+        </a>
+      </div>
+      {% endif %}
+
+      <!-- Actions -->
+      <div class="detail-card">
+        <h3>Actions</h3>
+        <div style="display:flex;flex-direction:column;gap:.6rem">
+          <a href="/compare?pre={{ disease.id }}" class="btn btn-outline" style="justify-content:center;font-size:.875rem">
+            ⚖️ Compare with Another Disease
+          </a>
+          <a href="/search?q={{ disease.name }}" class="btn btn-outline" style="justify-content:center;font-size:.875rem">
+            🔍 Search Related
+          </a>
+          <a href="/diseases" class="btn" style="justify-content:center;font-size:.875rem;background:var(--slate-100);color:var(--slate-700)">
+            ← All Diseases
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}

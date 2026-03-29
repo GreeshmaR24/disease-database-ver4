@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Disease Database — BioBase{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <h1>🧾 Disease Database</h1>
+  <p>{{ diseases|length }} curated diseases with molecular detail, genetic basis, diagnosis &amp; treatment information</p>
+</div>
+
+<div class="page-wrap">
+
+  <!-- Filter Bar -->
+  <div class="filter-bar">
+    <button class="filter-btn {% if not active_cat %}active{% endif %}" data-cat="">All</button>
+    {% for cat in categories %}
+    <button class="filter-btn {% if active_cat == cat.category %}active{% endif %}" data-cat="{{ cat.category }}">
+      {% if cat.category == 'Genetic' %}🧬{% elif cat.category == 'Neurological' %}🧠{% elif cat.category == 'Cancer' %}🎗️{% elif cat.category == 'Metabolic' %}⚗️{% else %}🔬{% endif %}
+      {{ cat.category }}
+    </button>
+    {% endfor %}
+  </div>
+
+  <!-- Disease Cards -->
+  {% if diseases %}
+  <div class="cards-grid">
+    {% for d in diseases %}
+    {% set cat = d.category.lower() %}
+    {% set icons = {'genetic':'🧬','neurological':'🧠','cancer':'🎗️','metabolic':'⚗️','cardiovascular':'❤️'} %}
+    <div class="disease-card" onclick="window.location='/disease/{{ d.id }}'">
+      <div class="card-header">
+        <div class="card-icon {{ cat }}">
+          {% if cat == 'genetic' %}🧬
+          {% elif cat == 'neurological' %}🧠
+          {% elif cat == 'cancer' %}🎗️
+          {% elif cat == 'metabolic' %}⚗️
+          {% elif cat == 'cardiovascular' %}❤️
+          {% else %}🔬{% endif %}
+        </div>
+        <span class="cat-badge {{ cat }}">{{ d.category }}</span>
+      </div>
+
+      <div class="card-title">{{ d.name }}</div>
+
+      <div class="card-desc">{{ d.description }}</div>
+
+      <div class="card-meta">
+        {% for gene in d.genes | from_json | list %}
+        {% if loop.index <= 3 %}
+        <span class="meta-tag">{{ gene }}</span>
+        {% endif %}
+        {% endfor %}
+      </div>
+
+      <div class="card-footer">
+        <span>{{ d.inheritance or '' }}</span>
+        <span class="card-link">View details →</span>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="icon">🔬</div>
+    <p>No diseases found for this category.</p>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Add Jinja filter support for JSON parsing in template
+// (gene chips rendered server-side via description workaround)
+</script>
+{% endblock %}

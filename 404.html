@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Page Not Found — BioBase{% endblock %}
+
+{% block content %}
+<div class="page-wrap" style="text-align:center;padding-top:5rem">
+  <div style="font-size:4rem;margin-bottom:1rem">🔬</div>
+  <h1 style="font-family:var(--font-display);font-size:2.5rem;color:var(--slate-800);margin-bottom:.75rem">404 — Not Found</h1>
+  <p style="color:var(--slate-500);margin-bottom:2rem">The disease or page you're looking for doesn't exist in our database.</p>
+  <div style="display:flex;gap:1rem;justify-content:center">
+    <a href="/" class="btn btn-primary">← Home</a>
+    <a href="/diseases" class="btn btn-outline">Disease Database</a>
+  </div>
+</div>
+{% endblock %}

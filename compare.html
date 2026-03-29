@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Disease Comparison — BioBase{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <h1>⚖️ Disease Comparison Tool</h1>
+  <p>Select two diseases for a detailed side-by-side clinical and genetic comparison</p>
+</div>
+
+<div class="page-wrap">
+
+  <!-- Selectors -->
+  <div class="compare-selectors">
+    <select class="compare-select" id="sel1">
+      <option value="">— Select Disease 1 —</option>
+      {% for d in all_diseases %}
+      <option value="{{ d.id }}"
+        {% if request.args.get('pre') == d.id|string %}selected{% endif %}>
+        {{ d.name }} ({{ d.category }})
+      </option>
+      {% endfor %}
+    </select>
+    <div class="compare-vs">vs</div>
+    <select class="compare-select" id="sel2">
+      <option value="">— Select Disease 2 —</option>
+      {% for d in all_diseases %}
+      <option value="{{ d.id }}">{{ d.name }} ({{ d.category }})</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div style="text-align:center;margin-bottom:2rem">
+    <button id="compare-btn" class="btn btn-primary" style="padding:.8rem 2.5rem;font-size:1rem">
+      ⚖️ Compare
+    </button>
+  </div>
+
+  <!-- Results -->
+  <div id="compare-result"></div>
+
+  <!-- Help text -->
+  <div style="margin-top:2rem;padding:1.25rem;background:var(--slate-50);border-radius:var(--radius);border:1px solid var(--slate-200)">
+    <p style="font-size:.82rem;color:var(--slate-500)">
+      💡 <strong>How to use:</strong> Select two diseases from the dropdowns above and click "Compare". The table will show a detailed side-by-side comparison including genes, symptoms, diagnosis methods, treatment approaches, and more.
+    </p>
+  </div>
+
+</div>
+{% endblock %}

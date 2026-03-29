@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}Cancer Biomarkers — BioBase{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <h1>🎗️ Cancer Biomarker Database</h1>
+  <p>{{ biomarkers|length }} validated biomarkers with detection methods, clinical relevance, and FDA approval status</p>
+</div>
+
+<div class="page-wrap">
+
+  <!-- Cancer type filter -->
+  <div class="filter-bar" id="cancer-filters">
+    <button class="filter-btn active" data-filter="all" onclick="filterBiomarkers('all', this)">All Types</button>
+    {% for ct in cancer_types %}
+    <button class="filter-btn" data-filter="{{ ct }}" onclick="filterBiomarkers('{{ ct }}', this)">{{ ct }}</button>
+    {% endfor %}
+  </div>
+
+  <!-- Biomarker Cards -->
+  <div class="bm-grid" id="bm-grid">
+    {% for bm in biomarkers %}
+    <div class="bm-card" data-cancer="{{ bm.cancer_type }}">
+      <div class="bm-card-head">
+        <div>
+          <div class="bm-name">{{ bm.name }}</div>
+          <div class="bm-cancer">🎗️ {{ bm.cancer_type }}</div>
+        </div>
+        <span class="relevance-badge">{{ bm.relevance }}</span>
+      </div>
+      <div class="bm-card-body">
+        <div class="bm-row">
+          <span class="bm-row-label">Gene/Protein</span>
+          <span class="bm-row-value" style="font-family:var(--font-mono);font-size:.8rem">{{ bm.gene_protein }}</span>
+        </div>
+        <div class="bm-row">
+          <span class="bm-row-label">Detection</span>
+          <span class="bm-row-value">{{ bm.detection_method }}</span>
+        </div>
+        <div class="bm-row">
+          <span class="bm-row-label">Normal Range</span>
+          <span class="bm-row-value" style="font-family:var(--font-mono);font-size:.82rem;color:var(--accent-green)">{{ bm.normal_range }}</span>
+        </div>
+        <div class="bm-significance">{{ bm.clinical_significance }}</div>
+        {% if bm.approved_test %}
+        <div style="font-size:.75rem;color:var(--accent-green);font-weight:600;display:flex;align-items:center;gap:.3rem">
+          ✅ {{ bm.approved_test }}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Biomarker Chart -->
+  <div class="chart-card" style="margin-top:2.5rem">
+    <h3>Biomarkers by Cancer Type</h3>
+    <canvas id="bm-cancer-chart" height="120"></canvas>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Filter biomarkers by cancer type
+function filterBiomarkers(cancer, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.bm-card').forEach(card => {
+    card.style.display = (cancer === 'all' || card.dataset.cancer === cancer) ? '' : 'none';
+  });
+}
+
+// Bar chart: biomarkers per cancer type
+(async () => {
+  await new Promise(res => {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js';
+    s.onload = res; document.head.appendChild(s);
+  });
+  const bms = await fetch('/api/biomarkers').then(r => r.json());
+  const counts = {};
+  bms.forEach(b => { counts[b.cancer_type] = (counts[b.cancer_type] || 0) + 1; });
+  new Chart(document.getElementById('bm-cancer-chart'), {
+    type: 'bar',
+    data: {
+      labels: Object.keys(counts),
+      datasets: [{
+        label: 'Biomarkers',
+        data: Object.values(counts),
+        backgroundColor: ['#2563eb','#8b5cf6','#ef4444','#10b981','#f59e0b','#06b6d4','#ec4899','#84cc16'],
+        borderRadius: 6
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f1f5f9' } },
+        x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+      }
+    }
+  });
+})();
+</script>
+{% endblock %}

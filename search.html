@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}AI-Powered Search — BioBase{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <h1>🔍 AI-Powered Smart Search</h1>
+  <p>Search by disease name, gene symbol, or enter symptoms for AI-assisted matching</p>
+</div>
+
+<div class="page-wrap">
+
+  <!-- Search Box -->
+  <div class="search-box-wrap">
+    <span class="search-icon-lg">🔍</span>
+    <input type="text"
+           id="search-input"
+           class="search-input-lg"
+           placeholder="Try: 'tremor', 'BRCA1', 'memory loss', 'cystic fibrosis'…"
+           autocomplete="off"
+           autofocus />
+  </div>
+
+  <!-- AI Explanation chip -->
+  <div style="text-align:center;margin-bottom:2rem">
+    <span style="font-size:.8rem;background:var(--blue-50);color:var(--blue-700);padding:.3rem .9rem;border-radius:999px;border:1px solid var(--blue-100)">
+      🤖 AI mode: symptom tokenisation + disease ontology scoring + fuzzy matching
+    </span>
+  </div>
+
+  <!-- Quick example chips -->
+  <div style="display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-bottom:2.5rem">
+    {% for ex in ['tremor','memory loss','BRCA1','bleeding','cough','cancer','copper','seizures'] %}
+    <button onclick="document.getElementById('search-input').value='{{ ex }}';performSearch('{{ ex }}')"
+            style="padding:.35rem .85rem;border-radius:999px;border:1.5px solid var(--slate-200);background:white;font-size:.8rem;cursor:pointer;color:var(--slate-600);transition:all .2s"
+            onmouseover="this.style.borderColor='var(--blue-400)';this.style.color='var(--blue-600)'"
+            onmouseout="this.style.borderColor='var(--slate-200)';this.style.color='var(--slate-600)'">
+      {{ ex }}
+    </button>
+    {% endfor %}
+  </div>
+
+  <!-- Results container -->
+  <div id="results-container">
+    <div class="empty-state">
+      <div class="icon">🧬</div>
+      <p>Start typing to search diseases, genes, and biomarkers.<br>
+      Enter <strong>symptoms</strong> like "tremor" or "memory loss" to get AI-powered disease suggestions.</p>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
