@@ -14,12 +14,11 @@ import os
 import re
 from difflib import get_close_matches
 
+app = Flask(__name__)
+app.secret_key = "biomarker_db_secret_2024"
 @app.route("/")
 def home():
     return render_template("index.html")
-
-app = Flask(__name__)
-app.secret_key = "biomarker_db_secret_2024"
 
 # Custom Jinja2 filter: parse JSON strings in templates
 @app.template_filter("from_json")
